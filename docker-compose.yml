@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  employer:
+    image: java:8u111-jre-alpine
+    container_name: employer
+    ports:
+     - "7040:9000"
+    volumes:
+     - ./opt:/opt/
+    links:
+     - dbEmployer
+    environment: 
+     - spring.datasource.url=jdbc:mariadb://dbEmployer/employer
+     - spring.metrics.export.statsd.host=localhost
+     - spring.metrics.export.statsd.port=7017
+     - spf.cors=http://doc.services.alin.be
+    entrypoint: java -jar /opt/employer-rest-0.1.0.jar
+    labels:
+     - traefik.frontend.rule=Host:employer.services.alin.be
+     - traefik.backend=employer
+     - traefik.port=9000
+     - traefik.frontend.entryPoints=http,https
+    networks:
+        - web
+  dbEmployer:
+    image: mariadb:10.1.20
+    environment:
+     - MYSQL_USER=root
+     - MYSQL_ROOT_PASSWORD=root
+     - MYSQL_DATABASE=employer
+    ports: 
+     - 3306:3306
+    volumes:
+     - ./datadir:/var/lib/mysql
+    networks:
+     - web
+
+networks:
+  web:
+    external:
+      name: traefik_webgateway
