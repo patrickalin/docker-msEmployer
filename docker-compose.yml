@@ -24,7 +24,7 @@ services:
     networks:
         - web
   dbEmployer:
-    image: mariadb:10.1.22
+    image: mariadb:10.3.0
     container_name: dbEmployer
     environment:
      - MYSQL_USER=root
